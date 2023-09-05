@@ -1,4 +1,4 @@
-# Taller diseño y estructuración de aplicaciones distribuidas en internet
+# Microframeworks WEB
 
 En este repositorio se encuentra una aplicacion soporta multiples solicitudes seguidas segun los archivos que pongamos en los recursos ademas de esto soporta la arquitectura del microframework web deniminado Sparkweb. El cual permite construir aplicaciones web de manera simple usando funciones Lambda.
 
