@@ -50,17 +50,15 @@ public class HttpServer {
                     uriString = (res[1].split("HTTP")[0]).replace(" ", "");
                     System.out.println(uriString);
                     Lamda.agregar("/helloget", str -> "Hello Get " + str);
-                    get = "El valor del get fue: " +Lamda.buscar("/helloget").handle(uriString);
                     System.out.println(get);
                     post = "";
 
-                }
-                else if(inputLine.contains("hellopost?name=")) {
+                } else if (inputLine.contains("hellopost?name=")) {
                     String[] res = inputLine.split("name=");
                     uriString = (res[1].split("HTTP")[0]).replace(" ", "");
                     System.out.println(uriString);
                     Lamda.agregar("/hellopost", str -> "Hello Post " + str);
-                    post = "El valor del post fue: " +Lamda.buscar("/hellopost").handle(uriString);
+                    post = "El valor del post fue: " + Lamda.buscar("/hellopost").handle(uriString);
                     System.out.println(post);
                     get = "";
                 }
@@ -73,12 +71,13 @@ public class HttpServer {
 
             if (uriString.startsWith("/hello?")) {
                 outputLine = getIndexResponse();
-                
+
             } else {
                 outputLine = "HTTP/1.1 200 OK \r\n"
-                            + "Content-Type: text/html\r\n" 
-                            + getText(getImageResponse())
-                            + getGet(get) + getPost(post);                
+                        + "Content-Type: text/html\r\n"
+
+                        + getGet(uriString) + getPost(post);
+
             }
             out.println(outputLine);
             out.close();
@@ -98,9 +97,8 @@ public class HttpServer {
             response = "HTTP/1.1 200 OK\r\n"
                     + "Content-Type: text/html\r\n"
                     + "\r\n"
-                    + indexContent
-                    + "        <img src=\"data:image/jpeg;base64," + image + "\" alt=\"Image\">\n";
-                    
+                    + indexContent;
+
         } catch (IOException e) {
             System.err.format("IOException: %s%n", e);
             response = "HTTP/1.1 500 Internal Server Error\r\n"
@@ -136,7 +134,10 @@ public class HttpServer {
         byte[] imageBytes = getImageBytes();
         if (imageBytes != null) {
             String imageData = Base64.getEncoder().encodeToString(imageBytes);
-            return imageData;
+            return "HTTP/1.1 500 Internal Server Error\r\n"
+                    + "Content-Type: text/html\r\n"
+                    + "\r\n"
+                    + "        <img src=\"data:image/jpeg;base64," + imageData + "\" alt=\"Image\">\n";
         } else {
             return "HTTP/1.1 500 Internal Server Error\r\n"
                     + "Content-Type: text/html\r\n"
@@ -185,19 +186,44 @@ public class HttpServer {
     }
 
     public static String getGet(String lamda) {
+        if (lamda.endsWith(".html")) {
+            String get;
+            get = "El valor del get fue: " + Lamda.buscar("/helloget").handle(getText(getImageResponse()));
+            System.out.println(get);
+            return get;
+        } else if (lamda.endsWith(".jpeg")) {
+            String get;
+            get = "El valor del get fue: " + Lamda.buscar("/helloget").handle(getImageResponse());
+            System.out.println(get);
+            return get;
+        }
         String response = "\r\n"
                 + "<!DOCTYPE html>\n"
                 + "<html>\n"
                 + "    <body>\n"
-                + "        <h1>Form with GET</h1>\n"
+                + "        <h1>Form with GET </h1>\n"
+                + "        <h2>Escriba el nombre del recurso que desea ver</h2>\n"
+                + "        <h3>En este momento se encuentra almacenado en el servidor index.html e image.jpeg</h3>\n"
                 + "        <form action=\"/hello\">\n"
                 + "            <label for=\"name\">Name:</label><br>\n"
-                + "            <input type=\"text\" id=\"name\" name=\"name\" value=\"John\"><br><br>\n"
+                + "            <input type=\"text\" id=\"name\" name=\"name\" value=\"index.html\"><br><br>\n"
                 + "            <input type=\"button\" value=\"Submit\" onclick=\"loadGetMsg()\">\n"
                 + "        </form> \n"
                 + "        <div id=\"getrespmsg\"></div>\n"
                 + "        \n"
-                + "        <div id=\"postrespmsg\">" + lamda + "</div>\n" 
+                + "        <script>\n"
+                + "            function loadGetMsg() {\n"
+                + "                let nameVar = document.getElementById(\"name\").value;\n"
+                + "                const xhttp = new XMLHttpRequest();\n"
+                + "                xhttp.onload = function() {\n"
+                + "                    document.getElementById(\"getrespmsg\").innerHTML =\n"
+                + "                    this.responseText;\n"
+                + "                }\n"
+                + "                xhttp.open(\"GET\", \"/hello?name=\"+nameVar);\n"
+                + "                xhttp.send();\n"
+                + "            }\n"
+                + "        </script>\n"
+                + "        <div id=\"postrespmsg\">" + lamda + "</div>\n"
                 + "        \n"
                 + "    </body>\n"
                 + "</html>\n";
@@ -216,7 +242,7 @@ public class HttpServer {
                 + "            <input type=\"button\" value=\"Submit\" onclick=\"loadPostMsg(postname)\">\n"
                 + "        </form>\n"
                 + "        \n"
-                + "        <div id=\"postrespmsg\">" + lamda + "</div>\n" 
+                + "        <div id=\"postrespmsg\">" + lamda + "</div>\n"
                 + "        \n"
                 + "    </body>\n"
                 + "</html>\n";

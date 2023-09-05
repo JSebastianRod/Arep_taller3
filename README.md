@@ -28,9 +28,13 @@ http://localhost:35000/
 La pagina deberia verse asi:
 
 ![resources](./taller3/src/main/resources/1.png)
+
+
+La pagina deberia verse asi cuando llamamos el recurso GET del archivo index.html: 
+
 ![resources](./taller3/src/main/resources/2.png)
 
-La pagina deberia verse asi cuando llamamos el recurso GET:
+La pagina deberia verse asi cuando llamamos el recurso GET del archivo images.jpeg: 
 
 ![resources](./taller3/src/main/resources/3.png)
 
